@@ -11,5 +11,5 @@ import java.util.UUID;
 public interface AccountTypeRepository extends R2dbcRepository<AccountType, UUID> {
     Mono<AccountType> findFirstByName(String name);
 
-    Mono<AccountType> findFirstById(UUID id);
+    Mono<AccountType> deleteByName(String name);
 }

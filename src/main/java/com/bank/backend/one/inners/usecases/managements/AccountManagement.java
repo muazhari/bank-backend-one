@@ -16,26 +16,26 @@ public class AccountManagement {
     @Autowired
     private AccountRepository accountRepository;
 
-    public Mono<Result<Account>> findOneById(UUID id) {
+    public Mono<Result<Account>> findFirstById(UUID id) {
         return accountRepository.findFirstById(id)
                 .flatMap(account -> Mono.just(
                                 Result.<Account>builder()
                                         .data(account)
                                         .code(200)
-                                        .message("Account management findOneById succeed.")
+                                        .message("Account management findFirstById succeed.")
                                         .build()
                         )
                 )
                 .switchIfEmpty(
                         Mono.just(Result.<Account>builder()
                                 .code(404)
-                                .message("Account management findOneById failed, account not found.")
+                                .message("Account management findFirstById failed, account not found.")
                                 .build())
                 )
                 .onErrorReturn(
                         Result.<Account>builder()
                                 .code(500)
-                                .message("Account management findOneById failed.")
+                                .message("Account management findFirstById failed.")
                                 .build()
                 );
     }
@@ -45,7 +45,7 @@ public class AccountManagement {
                 .map(account -> Result.<Account>builder()
                         .code(409)
                         .data(account)
-                        .message("Account management saveOne failed, account already exists by email.")
+                        .message("Account management saveFirst failed, account already exists by email.")
                         .build()
                 )
                 .switchIfEmpty(
@@ -54,59 +54,70 @@ public class AccountManagement {
                                     return Result.<Account>builder()
                                             .data(account)
                                             .code(201)
-                                            .message("Account management saveOne succeed.")
+                                            .message("Account management saveFirst succeed.")
                                             .build();
                                 })
                 )
                 .onErrorReturn(
                         Result.<Account>builder()
                                 .code(500)
-                                .message("Account management saveOne failed.")
+                                .message("Account management saveFirst failed.")
                                 .build()
                 );
     }
 
-    public Mono<Result<Account>> patchOneById(UUID id, Account patchAccount) {
-        return accountRepository.findFirstById(id)
-                .flatMap(accountRepository::save)
+    public Mono<Result<Account>> patchFirstById(UUID id, Account patchAccount) {
+        return accountRepository.findFirstById(patchAccount.getId())
                 .map(account -> Result.<Account>builder()
+                        .code(409)
                         .data(account)
-                        .code(200)
-                        .message("Account management patchOneById succeed.")
-                        .build())
+                        .message("Account management patchFirstById failed, account already exists by id.")
+                        .build()
+                )
                 .switchIfEmpty(
-                        Mono.just(Result.<Account>builder()
-                                .code(404)
-                                .message("Account management patchOneById failed, account not found.")
-                                .build())
+                        accountRepository.findFirstById(id)
+                                .map(account -> {
+                                    account.setEmail(patchAccount.getEmail());
+                                    account.setPassword(patchAccount.getPassword());
+                                    account.setUpdatedAt(patchAccount.getUpdatedAt());
+                                    account.setCreatedAt(patchAccount.getCreatedAt());
+                                    return account;
+                                })
+                                .flatMap(accountRepository::save)
+                                .map(account -> Result.<Account>builder()
+                                        .data(account)
+                                        .code(200)
+                                        .message("Account management patchFirstById succeed.")
+                                        .build()
+                                )
                 )
                 .onErrorReturn(
                         Result.<Account>builder()
                                 .code(500)
-                                .message("Account management patchOneById failed.")
+                                .message("Account management patchFirstById failed.")
                                 .build()
                 );
     }
 
-    public Mono<Result<Account>> deleteOneById(UUID id) {
+    public Mono<Result<Account>> deleteFirstById(UUID id) {
         return accountRepository.findFirstById(id)
                 .flatMap((account) -> accountRepository.deleteById(account.getId()).thenReturn(account))
                 .map(account -> Result.<Account>builder()
                         .data(account)
                         .code(200)
-                        .message("Account management deleteOneById succeed.")
+                        .message("Account management deleteFirstById succeed.")
                         .build()
                 )
                 .switchIfEmpty(
                         Mono.just(Result.<Account>builder()
                                 .code(404)
-                                .message("Account management deleteOneById failed, account not found.")
+                                .message("Account management deleteFirstById failed, account not found.")
                                 .build())
                 )
                 .onErrorReturn(
                         Result.<Account>builder()
                                 .code(500)
-                                .message("Account management deleteOneById failed.")
+                                .message("Account management deleteFirstById failed.")
                                 .build()
                 );
     }

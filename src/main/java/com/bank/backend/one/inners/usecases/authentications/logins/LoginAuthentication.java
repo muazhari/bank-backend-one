@@ -1,9 +1,9 @@
 package com.bank.backend.one.inners.usecases.authentications.logins;
 
 
-import com.bank.backend.one.inners.models.daos.Account;
 import com.bank.backend.one.inners.models.dtos.Result;
 import com.bank.backend.one.inners.models.dtos.requests.authentications.logins.LoginByEmailAndPasswordRequest;
+import com.bank.backend.one.inners.models.dtos.responses.authentications.logins.LoginByEmailAndPasswordResponse;
 import com.bank.backend.one.outers.repositories.AccountRepository;
 import com.bank.backend.one.outers.repositories.AccountTypeMapRepository;
 import com.bank.backend.one.outers.repositories.AccountTypeRepository;
@@ -25,18 +25,25 @@ public class LoginAuthentication {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public Mono<Result<Account>> loginByEmailAndPassword(LoginByEmailAndPasswordRequest request) {
+    public Mono<Result<LoginByEmailAndPasswordResponse>> loginByEmailAndPassword(LoginByEmailAndPasswordRequest request) {
         return accountRepository.findFirstByEmailAndPassword(request.getEmail(), passwordEncoder.encode(request.getPassword()))
-                .flatMap(account -> accountTypeMapRepository.findFirstByAccountIdAndAccountTypeId(account.getId(), request.getAccountTypeId())
-                        .map(accountTypeMap -> Result.<Account>builder()
-                                .data(account)
-                                .code(200)
-                                .message("Login authentication loginByEmailAndPassword succeed.")
-                                .build()
+                .flatMap(account -> accountTypeMapRepository.findFirstByAccountIdAndAccountTypeName(account.getId(), request.getTypeName())
+                        .flatMap(accountTypeMap -> accountTypeRepository.findFirstByName(accountTypeMap.getAccountTypeName())
+                                .map(accountType -> Result.<LoginByEmailAndPasswordResponse>builder()
+                                        .code(200)
+                                        .message("Login authentication loginByEmailAndPassword succeeded.")
+                                        .data(
+                                                LoginByEmailAndPasswordResponse.builder()
+                                                        .account(account)
+                                                        .accountType(accountType)
+                                                        .build()
+                                        )
+                                        .build()
+                                )
                         )
                         .switchIfEmpty(
                                 Mono.just(
-                                        Result.<Account>builder()
+                                        Result.<LoginByEmailAndPasswordResponse>builder()
                                                 .code(403)
                                                 .message("Login authentication loginByEmailAndPassword failed, account not found by accountTypeId.")
                                                 .build()
@@ -44,13 +51,13 @@ public class LoginAuthentication {
                         )
                 ).switchIfEmpty(
                         Mono.just(
-                                Result.<Account>builder()
+                                Result.<LoginByEmailAndPasswordResponse>builder()
                                         .code(404)
                                         .message("Login authentication loginByEmailAndPassword failed, account not found.")
                                         .build()
                         )
                 ).onErrorReturn(
-                        Result.<Account>builder()
+                        Result.<LoginByEmailAndPasswordResponse>builder()
                                 .code(500)
                                 .message("Login authentication loginByEmailAndPassword failed.")
                                 .build()

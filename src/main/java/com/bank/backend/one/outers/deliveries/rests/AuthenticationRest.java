@@ -38,11 +38,7 @@ public class AuthenticationRest {
                 .map(result -> ResponseEntity.status((Integer) result.getCode())
                         .body(
                                 Response.<LoginByEmailAndPasswordResponse>builder()
-                                        .data(
-                                                LoginByEmailAndPasswordResponse.builder()
-                                                        .account(result.getData())
-                                                        .build()
-                                        )
+                                        .data(result.getData())
                                         .message(result.getMessage())
                                         .build()
                         )
@@ -60,11 +56,7 @@ public class AuthenticationRest {
                 .map(result -> ResponseEntity.status((Integer) result.getCode())
                         .body(
                                 Response.<RegisterByEmailAndPasswordResponse>builder()
-                                        .data(
-                                                RegisterByEmailAndPasswordResponse.builder()
-                                                        .account(result.getData())
-                                                        .build()
-                                        )
+                                        .data(result.getData())
                                         .message(result.getMessage())
                                         .build()
                         )

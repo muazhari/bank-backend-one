@@ -5,7 +5,6 @@ import lombok.Data;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.OffsetDateTime;
-import java.util.UUID;
 
 @Table(
         value = "account_type"
@@ -13,7 +12,6 @@ import java.util.UUID;
 @Data
 @Builder
 public class AccountType {
-    private UUID id;
     private String name;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;

@@ -13,8 +13,9 @@ import java.util.UUID;
 @Data
 @Builder
 public class AccountTypeMap {
+    private UUID id;
     private UUID accountId;
-    private UUID accountTypeId;
+    private String accountTypeName;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
 }

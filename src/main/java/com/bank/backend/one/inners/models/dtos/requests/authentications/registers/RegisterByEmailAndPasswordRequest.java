@@ -10,5 +10,5 @@ import java.util.UUID;
 public class RegisterByEmailAndPasswordRequest {
     private String email;
     private String password;
-    private UUID accountTypeId;
+    private String typeName;
 }
