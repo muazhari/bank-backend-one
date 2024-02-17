@@ -16,20 +16,27 @@ public class AccountTypeManagement {
     private AccountTypeRepository accountTypeRepository;
 
     public Mono<Result<AccountType>> findFirstByName(String name) {
-        return accountTypeRepository.findFirstByName(name)
-                .map(accountType -> Result.<AccountType>builder()
+        return accountTypeRepository
+                .findFirstByName(name)
+                .map(accountType -> Result
+                        .<AccountType>builder()
                         .data(accountType)
                         .code(200)
                         .message("AccountType management findFirstByName succeed.")
-                        .build())
+                        .build()
+                )
                 .switchIfEmpty(
-                        Mono.just(Result.<AccountType>builder()
-                                .code(404)
-                                .message("AccountType management findFirstByName failed, accountType not found.")
-                                .build())
+                        Mono
+                                .just(Result
+                                        .<AccountType>builder()
+                                        .code(404)
+                                        .message("AccountType management findFirstByName failed, accountType not found.")
+                                        .build()
+                                )
                 )
                 .onErrorReturn(
-                        Result.<AccountType>builder()
+                        Result
+                                .<AccountType>builder()
                                 .code(500)
                                 .message("AccountType management findFirstByName failed.")
                                 .build()
@@ -37,17 +44,24 @@ public class AccountTypeManagement {
     }
 
     public Mono<Result<AccountType>> saveFirst(AccountType saveAccountType) {
-        return accountTypeRepository.findFirstByName(saveAccountType.getName())
-                .flatMap(accountType -> Mono.just(Result.<AccountType>builder()
-                        .code(409)
-                        .data(accountType)
-                        .message("AccountType management saveFirst failed, accountType already exists by name.")
-                        .build())
+        return accountTypeRepository
+                .findFirstByName(saveAccountType.getName())
+                .flatMap(accountType -> Mono
+                        .just(
+                                Result
+                                        .<AccountType>builder()
+                                        .code(409)
+                                        .data(accountType)
+                                        .message("AccountType management saveFirst failed, accountType already exists by name.")
+                                        .build()
+                        )
                 )
                 .switchIfEmpty(
-                        accountTypeRepository.save(saveAccountType)
+                        accountTypeRepository
+                                .save(saveAccountType)
                                 .map(accountType -> {
-                                    return Result.<AccountType>builder()
+                                    return Result
+                                            .<AccountType>builder()
                                             .data(accountType)
                                             .code(201)
                                             .message("AccountType management saveFirst succeed.")
@@ -55,7 +69,8 @@ public class AccountTypeManagement {
                                 })
                 )
                 .onErrorReturn(
-                        Result.<AccountType>builder()
+                        Result
+                                .<AccountType>builder()
                                 .code(500)
                                 .message("AccountType management saveFirst failed.")
                                 .build()
@@ -63,15 +78,18 @@ public class AccountTypeManagement {
     }
 
     public Mono<Result<AccountType>> patchFirstByName(String name, AccountType patchAccountType) {
-        return accountTypeRepository.findFirstByName(patchAccountType.getName())
-                .map(accountType -> Result.<AccountType>builder()
+        return accountTypeRepository
+                .findFirstByName(patchAccountType.getName())
+                .map(accountType -> Result
+                        .<AccountType>builder()
                         .code(409)
                         .data(accountType)
                         .message("AccountType management patchFirstByName failed, accountType already exists by name.")
                         .build()
                 )
                 .switchIfEmpty(
-                        accountTypeRepository.findFirstByName(name)
+                        accountTypeRepository
+                                .findFirstByName(name)
                                 .map(accountType -> {
                                     accountType.setName(patchAccountType.getName());
                                     accountType.setUpdatedAt(patchAccountType.getUpdatedAt());
@@ -79,7 +97,8 @@ public class AccountTypeManagement {
                                     return accountType;
                                 })
                                 .flatMap(accountTypeRepository::save)
-                                .map(accountType -> Result.<AccountType>builder()
+                                .map(accountType -> Result
+                                        .<AccountType>builder()
                                         .data(accountType)
                                         .code(200)
                                         .message("AccountType management patchFirstByName succeed.")
@@ -87,7 +106,8 @@ public class AccountTypeManagement {
                                 )
                 )
                 .onErrorReturn(
-                        Result.<AccountType>builder()
+                        Result
+                                .<AccountType>builder()
                                 .code(500)
                                 .message("AccountType management patchFirstByName failed.")
                                 .build()
@@ -95,25 +115,29 @@ public class AccountTypeManagement {
     }
 
     public Mono<Result<AccountType>> deleteFirstByName(String name) {
-        return accountTypeRepository.findFirstByName(name)
+        return accountTypeRepository
+                .findFirstByName(name)
                 .flatMap((accountType) -> accountTypeRepository.deleteByName(accountType.getName()).thenReturn(accountType))
-                .map(accountType -> Result.<AccountType>builder()
+                .map(accountType -> Result
+                        .<AccountType>builder()
                         .data(accountType)
                         .code(200)
                         .message("AccountType management deleteFirstByName succeed.")
                         .build()
                 )
-                .switchIfEmpty(
-                        Mono.just(Result.<AccountType>builder()
+                .switchIfEmpty(Mono
+                        .just(Result
+                                .<AccountType>builder()
                                 .code(404)
                                 .message("AccountType management deleteFirstByName failed, accountType not found.")
-                                .build())
-                )
-                .onErrorReturn(
-                        Result.<AccountType>builder()
-                                .code(500)
-                                .message("AccountType management deleteFirstByName failed.")
                                 .build()
+                        )
+                )
+                .onErrorReturn(Result
+                        .<AccountType>builder()
+                        .code(500)
+                        .message("AccountType management deleteFirstByName failed.")
+                        .build()
                 );
     }
 }

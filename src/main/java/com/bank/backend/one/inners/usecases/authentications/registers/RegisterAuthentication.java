@@ -31,64 +31,70 @@ public class RegisterAuthentication {
     private PasswordEncoder passwordEncoder;
 
     public Mono<Result<RegisterByEmailAndPasswordResponse>> registerByEmailAndPassword(RegisterByEmailAndPasswordRequest request) {
-        return accountRepository.findFirstByEmail(request.getEmail())
-                .map(account -> Result.<RegisterByEmailAndPasswordResponse>builder()
+        return accountRepository
+                .findFirstByEmail(request.getEmail())
+                .map(account -> Result
+                        .<RegisterByEmailAndPasswordResponse>builder()
                         .code(409)
-                        .data(
-                                RegisterByEmailAndPasswordResponse.builder()
-                                        .account(account)
-                                        .build()
+                        .data(RegisterByEmailAndPasswordResponse
+                                .builder()
+                                .account(account)
+                                .build()
                         )
-                        .message("Register authentication registerByEmailAndPassword failed, account already exists by email.")
+                        .message("RegisterAuthentication registerByEmailAndPassword failed, account already exists by email.")
                         .build()
                 )
-                .switchIfEmpty(
-                        accountTypeRepository.findFirstByName(request.getTypeName())
-                                .flatMap(accountType -> accountRepository.save(
-                                                        Account.builder()
-                                                                .id(UUID.randomUUID())
-                                                                .email(request.getEmail())
-                                                                .password(passwordEncoder.encode(request.getPassword()))
-                                                                .createdAt(OffsetDateTime.now())
-                                                                .updatedAt(OffsetDateTime.now())
-                                                                .build()
-                                                )
-                                                .flatMap(account -> accountTypeMapRepository.save(
-                                                                        AccountTypeMap.builder()
-                                                                                .id(UUID.randomUUID())
-                                                                                .accountId(account.getId())
-                                                                                .accountTypeName(accountType.getName())
-                                                                                .createdAt(OffsetDateTime.now())
-                                                                                .updatedAt(OffsetDateTime.now())
-                                                                                .build()
-                                                                )
-                                                                .map(accountTypeMap -> Result.<RegisterByEmailAndPasswordResponse>builder()
-                                                                        .code(201)
-                                                                        .message("Register authentication registerByEmailAndPassword succeeded.")
-                                                                        .data(
-                                                                                RegisterByEmailAndPasswordResponse.builder()
-                                                                                        .account(account)
-                                                                                        .accountType(accountType)
-                                                                                        .build()
-                                                                        )
-                                                                        .build()
-                                                                )
-                                                )
+                .switchIfEmpty(accountTypeRepository
+                        .findFirstByName(request.getTypeName())
+                        .flatMap(accountType -> accountRepository
+                                .save(Account
+                                        .builder()
+                                        .id(UUID.randomUUID())
+                                        .email(request.getEmail())
+                                        .password(passwordEncoder.encode(request.getPassword()))
+                                        .createdAt(OffsetDateTime.now())
+                                        .updatedAt(OffsetDateTime.now())
+                                        .build()
                                 )
-                                .switchIfEmpty(
-                                        Mono.just(
-                                                Result.<RegisterByEmailAndPasswordResponse>builder()
-                                                        .code(404)
-                                                        .message("Register authentication registerByEmailAndPassword failed, accountType not found.")
+                                .flatMap(account -> accountTypeMapRepository
+                                        .save(
+                                                AccountTypeMap
+                                                        .builder()
+                                                        .id(UUID.randomUUID())
+                                                        .accountId(account.getId())
+                                                        .accountTypeName(accountType.getName())
+                                                        .createdAt(OffsetDateTime.now())
+                                                        .updatedAt(OffsetDateTime.now())
                                                         .build()
                                         )
+                                        .map(accountTypeMap -> Result
+                                                .<RegisterByEmailAndPasswordResponse>builder()
+                                                .code(201)
+                                                .message("RegisterAuthentication registerByEmailAndPassword succeeded.")
+                                                .data(RegisterByEmailAndPasswordResponse
+                                                        .builder()
+                                                        .account(account)
+                                                        .accountType(accountType)
+                                                        .build()
+                                                )
+                                                .build()
+                                        )
                                 )
+                        )
+                        .switchIfEmpty(Mono
+                                .just(Result
+                                        .<RegisterByEmailAndPasswordResponse>builder()
+                                        .code(404)
+                                        .message("RegisterAuthentication registerByEmailAndPassword failed, accountTypeMap not found by accountId and accountTypeName.")
+                                        .build()
+                                )
+                        )
                 )
-                .onErrorReturn(
-                        Result.<RegisterByEmailAndPasswordResponse>builder()
-                                .code(500)
-                                .message("Register authentication registerByEmailAndPassword failed.")
-                                .build()
+                .onErrorReturn(Result
+                        .<RegisterByEmailAndPasswordResponse>builder()
+                        .code(500)
+                        .message("RegisterAuthentication registerByEmailAndPassword failed.")
+                        .build()
                 );
     }
 }

@@ -28,37 +28,41 @@ public class AuthenticationRest {
     private RegisterAuthentication registerAuthentication;
 
     @PostMapping(
-            value = "/logins/email-and-password"
+            value = "/logins/email-and-passwords"
     )
     public Mono<ResponseEntity<Response<LoginByEmailAndPasswordResponse>>> loginByEmailAndPassword(
             @RequestBody
             LoginByEmailAndPasswordRequest loginByEmailAndPasswordRequest
     ) {
-        return loginAuthentication.loginByEmailAndPassword(loginByEmailAndPasswordRequest)
-                .map(result -> ResponseEntity.status((Integer) result.getCode())
-                        .body(
-                                Response.<LoginByEmailAndPasswordResponse>builder()
-                                        .data(result.getData())
-                                        .message(result.getMessage())
-                                        .build()
+        return loginAuthentication
+                .loginByEmailAndPassword(loginByEmailAndPasswordRequest)
+                .map(result -> ResponseEntity
+                        .status((Integer) result.getCode())
+                        .body(Response
+                                .<LoginByEmailAndPasswordResponse>builder()
+                                .data(result.getData())
+                                .message(result.getMessage())
+                                .build()
                         )
                 );
     }
 
     @PostMapping(
-            value = "/registers/email-and-password"
+            value = "/registers/email-and-passwords"
     )
     public Mono<ResponseEntity<Response<RegisterByEmailAndPasswordResponse>>> registerByEmailAndPassword(
             @RequestBody
             RegisterByEmailAndPasswordRequest registerByEmailAndPasswordRequest
     ) {
-        return registerAuthentication.registerByEmailAndPassword(registerByEmailAndPasswordRequest)
-                .map(result -> ResponseEntity.status((Integer) result.getCode())
-                        .body(
-                                Response.<RegisterByEmailAndPasswordResponse>builder()
-                                        .data(result.getData())
-                                        .message(result.getMessage())
-                                        .build()
+        return registerAuthentication
+                .registerByEmailAndPassword(registerByEmailAndPasswordRequest)
+                .map(result -> ResponseEntity
+                        .status((Integer) result.getCode())
+                        .body(Response
+                                .<RegisterByEmailAndPasswordResponse>builder()
+                                .data(result.getData())
+                                .message(result.getMessage())
+                                .build()
                         )
                 );
     }

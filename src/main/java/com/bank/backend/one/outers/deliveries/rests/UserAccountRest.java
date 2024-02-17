@@ -36,18 +36,20 @@ public class UserAccountRest {
             )
             UUID accountId
     ) {
-        return aggregateAccount.findFirstByAccountId(
-                        FindFirstAccountRequest.builder()
-                                .accountId(accountId)
-                                .typeName("user")
-                                .build()
+        return aggregateAccount
+                .findFirstByAccountId(FindFirstAccountRequest
+                        .builder()
+                        .accountId(accountId)
+                        .typeName("user")
+                        .build()
                 )
-                .map(result -> ResponseEntity.status((Integer) result.getCode())
-                        .body(
-                                Response.<AccountTypeMapAggregate>builder()
-                                        .data(result.getData())
-                                        .message(result.getMessage())
-                                        .build()
+                .map(result -> ResponseEntity
+                        .status((Integer) result.getCode())
+                        .body(Response
+                                .<AccountTypeMapAggregate>builder()
+                                .data(result.getData())
+                                .message(result.getMessage())
+                                .build()
                         )
                 );
     }
@@ -59,19 +61,21 @@ public class UserAccountRest {
             @RequestBody
             SaveOneUserAccountRequest request
     ) {
-        return aggregateAccount.saveOne(
-                        SaveOneAccountRequest.builder()
-                                .email(request.getEmail())
-                                .password(request.getPassword())
-                                .typeName("user")
-                                .build()
+        return aggregateAccount
+                .saveOne(SaveOneAccountRequest
+                        .builder()
+                        .email(request.getEmail())
+                        .password(request.getPassword())
+                        .typeName("user")
+                        .build()
                 )
-                .map(result -> ResponseEntity.status((Integer) result.getCode())
-                        .body(
-                                Response.<AccountTypeMapAggregate>builder()
-                                        .data(result.getData())
-                                        .message(result.getMessage())
-                                        .build()
+                .map(result -> ResponseEntity
+                        .status((Integer) result.getCode())
+                        .body(Response
+                                .<AccountTypeMapAggregate>builder()
+                                .data(result.getData())
+                                .message(result.getMessage())
+                                .build()
                         )
                 );
     }
@@ -87,20 +91,22 @@ public class UserAccountRest {
             @RequestBody
             PatchFirstUserAccountRequest request
     ) {
-        return aggregateAccount.patchFirstByAccountId(
-                        PatchFirstAccountRequest.builder()
-                                .accountId(accountId)
-                                .email(request.getEmail())
-                                .password(request.getPassword())
-                                .typeName("user")
-                                .build()
+        return aggregateAccount
+                .patchFirstByAccountId(PatchFirstAccountRequest
+                        .builder()
+                        .accountId(accountId)
+                        .email(request.getEmail())
+                        .password(request.getPassword())
+                        .typeName("user")
+                        .build()
                 )
-                .map(result -> ResponseEntity.status((Integer) result.getCode())
-                        .body(
-                                Response.<AccountTypeMapAggregate>builder()
-                                        .data(result.getData())
-                                        .message(result.getMessage())
-                                        .build()
+                .map(result -> ResponseEntity
+                        .status((Integer) result.getCode())
+                        .body(Response
+                                .<AccountTypeMapAggregate>builder()
+                                .data(result.getData())
+                                .message(result.getMessage())
+                                .build()
                         )
                 );
     }
@@ -114,18 +120,20 @@ public class UserAccountRest {
             )
             UUID accountId
     ) {
-        return aggregateAccount.deleteFirstByAccountId(
-                        DeleteFirstAccountRequest.builder()
-                                .accountId(accountId)
-                                .typeName("user")
-                                .build()
+        return aggregateAccount
+                .deleteFirstByAccountId(DeleteFirstAccountRequest
+                        .builder()
+                        .accountId(accountId)
+                        .typeName("user")
+                        .build()
                 )
-                .map(result -> ResponseEntity.status((Integer) result.getCode())
-                        .body(
-                                Response.<AccountTypeMapAggregate>builder()
-                                        .data(result.getData())
-                                        .message(result.getMessage())
-                                        .build()
+                .map(result -> ResponseEntity
+                        .status((Integer) result.getCode())
+                        .body(Response
+                                .<AccountTypeMapAggregate>builder()
+                                .data(result.getData())
+                                .message(result.getMessage())
+                                .build()
                         )
                 );
     }

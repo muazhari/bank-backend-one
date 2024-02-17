@@ -26,41 +26,65 @@ public class LoginAuthentication {
     private PasswordEncoder passwordEncoder;
 
     public Mono<Result<LoginByEmailAndPasswordResponse>> loginByEmailAndPassword(LoginByEmailAndPasswordRequest request) {
-        return accountRepository.findFirstByEmailAndPassword(request.getEmail(), passwordEncoder.encode(request.getPassword()))
-                .flatMap(account -> accountTypeMapRepository.findFirstByAccountIdAndAccountTypeName(account.getId(), request.getTypeName())
-                        .flatMap(accountTypeMap -> accountTypeRepository.findFirstByName(accountTypeMap.getAccountTypeName())
-                                .map(accountType -> Result.<LoginByEmailAndPasswordResponse>builder()
+        return accountRepository
+                .findFirstByEmail(request.getEmail())
+                .filter(account -> passwordEncoder.matches(request.getPassword(), account.getPassword()))
+                .flatMap(account -> accountTypeMapRepository
+                        .findFirstByAccountIdAndAccountTypeName(account.getId(), request.getTypeName())
+                        .flatMap(accountTypeMap -> accountTypeRepository
+                                .findFirstByName(accountTypeMap.getAccountTypeName())
+                                .map(accountType -> Result
+                                        .<LoginByEmailAndPasswordResponse>builder()
                                         .code(200)
-                                        .message("Login authentication loginByEmailAndPassword succeeded.")
-                                        .data(
-                                                LoginByEmailAndPasswordResponse.builder()
-                                                        .account(account)
-                                                        .accountType(accountType)
-                                                        .build()
+                                        .message("LoginAuthentication loginByEmailAndPassword succeeded.")
+                                        .data(LoginByEmailAndPasswordResponse
+                                                .builder()
+                                                .account(account)
+                                                .accountType(accountType)
+                                                .build()
                                         )
                                         .build()
                                 )
-                        )
-                        .switchIfEmpty(
-                                Mono.just(
-                                        Result.<LoginByEmailAndPasswordResponse>builder()
+                                .switchIfEmpty(Mono
+                                        .just(Result
+                                                .<LoginByEmailAndPasswordResponse>builder()
                                                 .code(403)
-                                                .message("Login authentication loginByEmailAndPassword failed, account not found by accountTypeId.")
+                                                .message("LoginAuthentication loginByEmailAndPassword failed, accountType not found by accountTypeName.")
                                                 .build()
+                                        )
+
+                                )
+                                .switchIfEmpty(Mono
+                                        .just(Result
+                                                .<LoginByEmailAndPasswordResponse>builder()
+                                                .code(403)
+                                                .message("LoginAuthentication loginByEmailAndPassword failed, accountTypeMap not found by accountId and accountTypeName.")
+                                                .build()
+                                        )
                                 )
                         )
-                ).switchIfEmpty(
-                        Mono.just(
-                                Result.<LoginByEmailAndPasswordResponse>builder()
+                        .switchIfEmpty(Mono
+                                .just(Result
+                                        .<LoginByEmailAndPasswordResponse>builder()
                                         .code(404)
-                                        .message("Login authentication loginByEmailAndPassword failed, account not found.")
+                                        .message("LoginAuthentication loginByEmailAndPassword failed, account not found by email and password.")
                                         .build()
+                                )
                         )
-                ).onErrorReturn(
-                        Result.<LoginByEmailAndPasswordResponse>builder()
-                                .code(500)
-                                .message("Login authentication loginByEmailAndPassword failed.")
+                )
+                .switchIfEmpty(Mono
+                        .just(Result
+                                .<LoginByEmailAndPasswordResponse>builder()
+                                .code(404)
+                                .message("LoginAuthentication loginByEmailAndPassword failed, account not found by email and password.")
                                 .build()
+                        )
+                )
+                .onErrorReturn(Result
+                        .<LoginByEmailAndPasswordResponse>builder()
+                        .code(500)
+                        .message("LoginAuthentication loginByEmailAndPassword failed.")
+                        .build()
                 );
     }
 }

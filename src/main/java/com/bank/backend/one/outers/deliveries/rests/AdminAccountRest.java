@@ -36,18 +36,20 @@ public class AdminAccountRest {
             )
             UUID accountId
     ) {
-        return aggregateAccount.findFirstByAccountId(
-                        FindFirstAccountRequest.builder()
-                                .accountId(accountId)
-                                .typeName("admin")
-                                .build()
+        return aggregateAccount
+                .findFirstByAccountId(FindFirstAccountRequest
+                        .builder()
+                        .accountId(accountId)
+                        .typeName("admin")
+                        .build()
                 )
-                .map(result -> ResponseEntity.status((Integer) result.getCode())
-                        .body(
-                                Response.<AccountTypeMapAggregate>builder()
-                                        .data(result.getData())
-                                        .message(result.getMessage())
-                                        .build()
+                .map(result -> ResponseEntity
+                        .status((Integer) result.getCode())
+                        .body(Response
+                                .<AccountTypeMapAggregate>builder()
+                                .data(result.getData())
+                                .message(result.getMessage())
+                                .build()
                         )
                 );
     }
@@ -59,19 +61,21 @@ public class AdminAccountRest {
             @RequestBody
             SaveOneAdminAccountRequest request
     ) {
-        return aggregateAccount.saveOne(
-                        SaveOneAccountRequest.builder()
-                                .email(request.getEmail())
-                                .password(request.getPassword())
-                                .typeName("admin")
-                                .build()
+        return aggregateAccount
+                .saveOne(SaveOneAccountRequest
+                        .builder()
+                        .email(request.getEmail())
+                        .password(request.getPassword())
+                        .typeName("admin")
+                        .build()
                 )
-                .map(result -> ResponseEntity.status((Integer) result.getCode())
-                        .body(
-                                Response.<AccountTypeMapAggregate>builder()
-                                        .data(result.getData())
-                                        .message(result.getMessage())
-                                        .build()
+                .map(result -> ResponseEntity
+                        .status((Integer) result.getCode())
+                        .body(Response
+                                .<AccountTypeMapAggregate>builder()
+                                .data(result.getData())
+                                .message(result.getMessage())
+                                .build()
                         )
                 );
     }
@@ -87,20 +91,22 @@ public class AdminAccountRest {
             @RequestBody
             PatchFirstAdminAccountRequest request
     ) {
-        return aggregateAccount.patchFirstByAccountId(
-                        PatchFirstAccountRequest.builder()
-                                .accountId(accountId)
-                                .email(request.getEmail())
-                                .password(request.getPassword())
-                                .typeName("admin")
-                                .build()
+        return aggregateAccount
+                .patchFirstByAccountId(PatchFirstAccountRequest
+                        .builder()
+                        .accountId(accountId)
+                        .email(request.getEmail())
+                        .password(request.getPassword())
+                        .typeName("admin")
+                        .build()
                 )
-                .map(result -> ResponseEntity.status((Integer) result.getCode())
-                        .body(
-                                Response.<AccountTypeMapAggregate>builder()
-                                        .data(result.getData())
-                                        .message(result.getMessage())
-                                        .build()
+                .map(result -> ResponseEntity
+                        .status((Integer) result.getCode())
+                        .body(Response
+                                .<AccountTypeMapAggregate>builder()
+                                .data(result.getData())
+                                .message(result.getMessage())
+                                .build()
                         )
                 );
     }
@@ -114,18 +120,18 @@ public class AdminAccountRest {
             )
             UUID accountId
     ) {
-        return aggregateAccount.deleteFirstByAccountId(
-                        DeleteFirstAccountRequest.builder()
-                                .accountId(accountId)
-                                .typeName("admin")
-                                .build()
+        return aggregateAccount.deleteFirstByAccountId(DeleteFirstAccountRequest
+                        .builder()
+                        .accountId(accountId)
+                        .typeName("admin")
+                        .build()
                 )
-                .map(result -> ResponseEntity.status((Integer) result.getCode())
-                        .body(
-                                Response.<AccountTypeMapAggregate>builder()
-                                        .data(result.getData())
-                                        .message(result.getMessage())
-                                        .build()
+                .map(result -> ResponseEntity
+                        .status((Integer) result.getCode())
+                        .body(Response.<AccountTypeMapAggregate>builder()
+                                .data(result.getData())
+                                .message(result.getMessage())
+                                .build()
                         )
                 );
     }
