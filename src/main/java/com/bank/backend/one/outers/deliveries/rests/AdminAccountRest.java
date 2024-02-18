@@ -3,11 +3,11 @@ package com.bank.backend.one.outers.deliveries.rests;
 
 import com.bank.backend.one.inners.models.dtos.Response;
 import com.bank.backend.one.inners.models.dtos.aggregates.AccountTypeMapAggregate;
-import com.bank.backend.one.inners.models.dtos.requests.accounts.DeleteFirstAccountRequest;
-import com.bank.backend.one.inners.models.dtos.requests.accounts.FindFirstAccountRequest;
-import com.bank.backend.one.inners.models.dtos.requests.accounts.PatchFirstAccountRequest;
+import com.bank.backend.one.inners.models.dtos.requests.accounts.DeleteOneAccountRequest;
+import com.bank.backend.one.inners.models.dtos.requests.accounts.FindOneAccountRequest;
+import com.bank.backend.one.inners.models.dtos.requests.accounts.PatchOneAccountRequest;
 import com.bank.backend.one.inners.models.dtos.requests.accounts.SaveOneAccountRequest;
-import com.bank.backend.one.inners.models.dtos.requests.accounts.admins.PatchFirstAdminAccountRequest;
+import com.bank.backend.one.inners.models.dtos.requests.accounts.admins.PatchOneAdminAccountRequest;
 import com.bank.backend.one.inners.models.dtos.requests.accounts.admins.SaveOneAdminAccountRequest;
 import com.bank.backend.one.inners.usecases.accounts.AggregateAccount;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ public class AdminAccountRest {
             UUID accountId
     ) {
         return aggregateAccount
-                .findFirstByAccountId(FindFirstAccountRequest
+                .findOneByAccountId(FindOneAccountRequest
                         .builder()
                         .accountId(accountId)
                         .typeName("admin")
@@ -89,10 +89,10 @@ public class AdminAccountRest {
             )
             UUID accountId,
             @RequestBody
-            PatchFirstAdminAccountRequest request
+            PatchOneAdminAccountRequest request
     ) {
         return aggregateAccount
-                .patchFirstByAccountId(PatchFirstAccountRequest
+                .patchOneByAccountId(PatchOneAccountRequest
                         .builder()
                         .accountId(accountId)
                         .email(request.getEmail())
@@ -120,7 +120,7 @@ public class AdminAccountRest {
             )
             UUID accountId
     ) {
-        return aggregateAccount.deleteFirstByAccountId(DeleteFirstAccountRequest
+        return aggregateAccount.deleteOneByAccountId(DeleteOneAccountRequest
                         .builder()
                         .accountId(accountId)
                         .typeName("admin")

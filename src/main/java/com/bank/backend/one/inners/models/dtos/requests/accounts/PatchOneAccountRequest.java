@@ -9,7 +9,9 @@ import java.util.UUID;
 
 @Data
 @Builder
-public class DeleteFirstAccountRequest {
+public class PatchOneAccountRequest {
     private UUID accountId;
+    private String email;
+    private String password;
     private String typeName;
 }

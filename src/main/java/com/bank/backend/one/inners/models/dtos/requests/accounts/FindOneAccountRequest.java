@@ -9,9 +9,7 @@ import java.util.UUID;
 
 @Data
 @Builder
-public class PatchFirstAccountRequest {
+public class FindOneAccountRequest {
     private UUID accountId;
-    private String email;
-    private String password;
     private String typeName;
 }

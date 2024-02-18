@@ -32,7 +32,7 @@ public class RegisterAuthentication {
 
     public Mono<Result<RegisterByEmailAndPasswordResponse>> registerByEmailAndPassword(RegisterByEmailAndPasswordRequest request) {
         return accountRepository
-                .findFirstByEmail(request.getEmail())
+                .findOneByEmail(request.getEmail())
                 .map(account -> Result
                         .<RegisterByEmailAndPasswordResponse>builder()
                         .code(409)
@@ -41,11 +41,11 @@ public class RegisterAuthentication {
                                 .account(account)
                                 .build()
                         )
-                        .message("RegisterAuthentication registerByEmailAndPassword failed, account already exists by email.")
+                        .message("RegisterAuthentication registerByEmailAndPassword is failed, account already exists by email.")
                         .build()
                 )
                 .switchIfEmpty(accountTypeRepository
-                        .findFirstByName(request.getTypeName())
+                        .findOneByName(request.getTypeName())
                         .flatMap(accountType -> accountRepository
                                 .save(Account
                                         .builder()
@@ -62,7 +62,7 @@ public class RegisterAuthentication {
                                                         .builder()
                                                         .id(UUID.randomUUID())
                                                         .accountId(account.getId())
-                                                        .accountTypeName(accountType.getName())
+                                                        .accountTypeId(accountType.getId())
                                                         .createdAt(OffsetDateTime.now())
                                                         .updatedAt(OffsetDateTime.now())
                                                         .build()
@@ -70,7 +70,7 @@ public class RegisterAuthentication {
                                         .map(accountTypeMap -> Result
                                                 .<RegisterByEmailAndPasswordResponse>builder()
                                                 .code(201)
-                                                .message("RegisterAuthentication registerByEmailAndPassword succeeded.")
+                                                .message("RegisterAuthentication registerByEmailAndPassword is succeed.")
                                                 .data(RegisterByEmailAndPasswordResponse
                                                         .builder()
                                                         .account(account)
@@ -85,7 +85,7 @@ public class RegisterAuthentication {
                                 .just(Result
                                         .<RegisterByEmailAndPasswordResponse>builder()
                                         .code(404)
-                                        .message("RegisterAuthentication registerByEmailAndPassword failed, accountTypeMap not found by accountId and accountTypeName.")
+                                        .message("RegisterAuthentication registerByEmailAndPassword is failed, accountTypeMap not found by accountId and accountTypeName.")
                                         .build()
                                 )
                         )
@@ -93,7 +93,7 @@ public class RegisterAuthentication {
                 .onErrorReturn(Result
                         .<RegisterByEmailAndPasswordResponse>builder()
                         .code(500)
-                        .message("RegisterAuthentication registerByEmailAndPassword failed.")
+                        .message("RegisterAuthentication registerByEmailAndPassword is failed.")
                         .build()
                 );
     }

@@ -4,9 +4,9 @@ import com.bank.backend.one.inners.models.daos.Account;
 import com.bank.backend.one.inners.models.daos.AccountTypeMap;
 import com.bank.backend.one.inners.models.dtos.Result;
 import com.bank.backend.one.inners.models.dtos.aggregates.AccountTypeMapAggregate;
-import com.bank.backend.one.inners.models.dtos.requests.accounts.DeleteFirstAccountRequest;
-import com.bank.backend.one.inners.models.dtos.requests.accounts.FindFirstAccountRequest;
-import com.bank.backend.one.inners.models.dtos.requests.accounts.PatchFirstAccountRequest;
+import com.bank.backend.one.inners.models.dtos.requests.accounts.DeleteOneAccountRequest;
+import com.bank.backend.one.inners.models.dtos.requests.accounts.FindOneAccountRequest;
+import com.bank.backend.one.inners.models.dtos.requests.accounts.PatchOneAccountRequest;
 import com.bank.backend.one.inners.models.dtos.requests.accounts.SaveOneAccountRequest;
 import com.bank.backend.one.outers.repositories.AccountRepository;
 import com.bank.backend.one.outers.repositories.AccountTypeMapRepository;
@@ -29,15 +29,15 @@ public class AggregateAccount {
     private AccountTypeMapRepository accountTypeMapRepository;
 
 
-    public Mono<Result<AccountTypeMapAggregate>> findFirstByAccountId(FindFirstAccountRequest request) {
+    public Mono<Result<AccountTypeMapAggregate>> findOneByAccountId(FindOneAccountRequest request) {
         return accountTypeRepository
-                .findFirstByName(request.getTypeName())
+                .findOneByName(request.getTypeName())
                 .flatMap(accountType -> {
                     return accountTypeMapRepository
-                            .findFirstByAccountIdAndAccountTypeName(request.getAccountId(), accountType.getName())
+                            .findOneByAccountIdAndAccountTypeName(request.getAccountId(), accountType.getName())
                             .flatMap(accountTypeMap -> {
                                 return accountRepository
-                                        .findFirstById(request.getAccountId())
+                                        .findOneById(request.getAccountId())
                                         .map(account -> Result
                                                 .<AccountTypeMapAggregate>builder()
                                                 .data(AccountTypeMapAggregate
@@ -47,7 +47,7 @@ public class AggregateAccount {
                                                         .build()
                                                 )
                                                 .code(200)
-                                                .message("AdminAccount findFirstByAccountId succeed.")
+                                                .message("AdminAccount findOneByAccountId is succeed.")
                                                 .build()
                                         );
                             })
@@ -55,7 +55,7 @@ public class AggregateAccount {
                                     .just(Result
                                             .<AccountTypeMapAggregate>builder()
                                             .code(404)
-                                            .message("AdminAccount findFirstByAccountId failed, accountTypeMap not found.")
+                                            .message("AdminAccount findOneByAccountId is failed, accountTypeMap not found.")
                                             .build()
                                     )
                             );
@@ -64,24 +64,24 @@ public class AggregateAccount {
                         .just(Result
                                 .<AccountTypeMapAggregate>builder()
                                 .code(404)
-                                .message("AdminAccount findFirstByAccountId failed, accountType not found.")
+                                .message("AdminAccount findOneByAccountId is failed, accountType not found.")
                                 .build()
                         )
                 )
                 .onErrorReturn(Result
                         .<AccountTypeMapAggregate>builder()
                         .code(500)
-                        .message("AdminAccount findFirstByAccountId failed.")
+                        .message("AdminAccount findOneByAccountId is failed.")
                         .build()
                 );
     }
 
     public Mono<Result<AccountTypeMapAggregate>> saveOne(SaveOneAccountRequest request) {
         return accountTypeRepository
-                .findFirstByName("admin")
+                .findOneByName("admin")
                 .flatMap(accountType -> {
                     return accountRepository
-                            .findFirstByEmail(request.getEmail())
+                            .findOneByEmail(request.getEmail())
                             .map(account -> Result
                                     .<AccountTypeMapAggregate>builder()
                                     .code(409)
@@ -91,7 +91,7 @@ public class AggregateAccount {
                                             .accountType(accountType)
                                             .build()
                                     )
-                                    .message("AdminAccount saveOne failed, account already exists by email.")
+                                    .message("AdminAccount saveOne is failed, account already exists by email.")
                                     .build()
                             )
                             .switchIfEmpty(
@@ -111,7 +111,7 @@ public class AggregateAccount {
                                                                         .builder()
                                                                         .id(UUID.randomUUID())
                                                                         .accountId(account.getId())
-                                                                        .accountTypeName(accountType.getName())
+                                                                        .accountTypeId(accountType.getId())
                                                                         .createdAt(OffsetDateTime.now())
                                                                         .updatedAt(OffsetDateTime.now())
                                                                         .build()
@@ -124,7 +124,7 @@ public class AggregateAccount {
                                                                                 .build()
                                                                         )
                                                                         .code(201)
-                                                                        .message("AdminAccount saveOne succeed.")
+                                                                        .message("AdminAccount saveOne is succeed.")
                                                                         .build()
                                                                 );
                                                     }
@@ -135,7 +135,7 @@ public class AggregateAccount {
                         .just(Result
                                 .<AccountTypeMapAggregate>builder()
                                 .code(404)
-                                .message("AdminAccount saveOne failed, accountType not found.")
+                                .message("AdminAccount saveOne is failed, accountType not found.")
                                 .build()
                         )
                 )
@@ -143,17 +143,17 @@ public class AggregateAccount {
                         Result
                                 .<AccountTypeMapAggregate>builder()
                                 .code(500)
-                                .message("AdminAccount saveOne failed.")
+                                .message("AdminAccount saveOne is failed.")
                                 .build()
                 );
     }
 
-    public Mono<Result<AccountTypeMapAggregate>> patchFirstByAccountId(PatchFirstAccountRequest request) {
+    public Mono<Result<AccountTypeMapAggregate>> patchOneByAccountId(PatchOneAccountRequest request) {
         return accountTypeRepository
-                .findFirstByName(request.getTypeName())
-                .flatMap(accountType -> accountTypeMapRepository.findFirstByAccountIdAndAccountTypeName(request.getAccountId(), accountType.getName())
+                .findOneByName(request.getTypeName())
+                .flatMap(accountType -> accountTypeMapRepository.findOneByAccountIdAndAccountTypeName(request.getAccountId(), accountType.getName())
                         .flatMap(accountTypeMap -> accountRepository
-                                .findFirstByEmail(request.getEmail())
+                                .findOneByEmail(request.getEmail())
                                 .map(account -> Result
                                         .<AccountTypeMapAggregate>builder()
                                         .code(409)
@@ -164,12 +164,12 @@ public class AggregateAccount {
                                                         .accountType(accountType)
                                                         .build()
                                         )
-                                        .message("AdminAccount patchFirstByAccountId failed, account already exists by email.")
+                                        .message("AdminAccount patchOneByAccountId is failed, account already exists by email.")
                                         .build()
                                 )
                                 .switchIfEmpty(
                                         accountRepository
-                                                .findFirstById(accountTypeMap.getAccountId())
+                                                .findOneById(accountTypeMap.getAccountId())
                                                 .map(account -> {
                                                     account.setEmail(request.getEmail());
                                                     account.setPassword(request.getPassword());
@@ -186,7 +186,7 @@ public class AggregateAccount {
                                                                 .build()
                                                         )
                                                         .code(200)
-                                                        .message("AdminAccount patchFirstByAccountId succeed.")
+                                                        .message("AdminAccount patchOneByAccountId is succeed.")
                                                         .build()
                                                 )
                                 )
@@ -197,7 +197,7 @@ public class AggregateAccount {
                                                 Result
                                                         .<AccountTypeMapAggregate>builder()
                                                         .code(404)
-                                                        .message("AdminAccount patchFirstByAccountId failed, accountTypeMap not found.")
+                                                        .message("AdminAccount patchOneByAccountId is failed, accountTypeMap not found.")
                                                         .build()
 
                                         )
@@ -207,7 +207,7 @@ public class AggregateAccount {
                         .just(Result
                                 .<AccountTypeMapAggregate>builder()
                                 .code(404)
-                                .message("AdminAccount patchFirstByAccountId failed, accountType not found.")
+                                .message("AdminAccount patchOneByAccountId is failed, accountType not found.")
                                 .build()
                         )
                 )
@@ -215,18 +215,18 @@ public class AggregateAccount {
                         Result
                                 .<AccountTypeMapAggregate>builder()
                                 .code(500)
-                                .message("AdminAccount patchFirstByAccountId failed.")
+                                .message("AdminAccount patchOneByAccountId is failed.")
                                 .build()
                 );
     }
 
-    public Mono<Result<AccountTypeMapAggregate>> deleteFirstByAccountId(DeleteFirstAccountRequest request) {
+    public Mono<Result<AccountTypeMapAggregate>> deleteOneByAccountId(DeleteOneAccountRequest request) {
         return accountTypeRepository
-                .findFirstByName(request.getTypeName())
+                .findOneByName(request.getTypeName())
                 .flatMap(accountType -> accountTypeMapRepository
-                        .findFirstByAccountIdAndAccountTypeName(request.getAccountId(), accountType.getName())
+                        .findOneByAccountIdAndAccountTypeName(request.getAccountId(), accountType.getName())
                         .flatMap(accountTypeMap -> accountRepository
-                                .findFirstById(accountTypeMap.getAccountId())
+                                .findOneById(accountTypeMap.getAccountId())
                                 .flatMap(account -> accountTypeMapRepository.deleteById(accountTypeMap.getAccountId()).thenReturn(account))
                                 .flatMap(account -> accountRepository.deleteById(account.getId()).thenReturn(account))
                                 .map(account -> Result
@@ -238,14 +238,14 @@ public class AggregateAccount {
                                                 .build()
                                         )
                                         .code(200)
-                                        .message("AdminAccount deleteFirstByAccountId succeed.")
+                                        .message("AdminAccount deleteOneByAccountId is succeed.")
                                         .build()
                                 )
                                 .switchIfEmpty(Mono
                                         .just(Result
                                                 .<AccountTypeMapAggregate>builder()
                                                 .code(404)
-                                                .message("AdminAccount deleteFirstByAccountId failed, account not found.")
+                                                .message("AdminAccount deleteOneByAccountId is failed, account not found.")
                                                 .build()
                                         )
 
@@ -255,7 +255,7 @@ public class AggregateAccount {
                                 .just(Result
                                         .<AccountTypeMapAggregate>builder()
                                         .code(404)
-                                        .message("AdminAccount deleteFirstByAccountId failed, accountTypeMap not found.")
+                                        .message("AdminAccount deleteOneByAccountId is failed, accountTypeMap not found.")
                                         .build()
                                 )
                         )
@@ -264,14 +264,14 @@ public class AggregateAccount {
                         .just(Result
                                 .<AccountTypeMapAggregate>builder()
                                 .code(404)
-                                .message("AdminAccount deleteFirstByAccountId failed, accountType not found.")
+                                .message("AdminAccount deleteOneByAccountId is failed, accountType not found.")
                                 .build()
                         )
                 )
                 .onErrorReturn(Result
                         .<AccountTypeMapAggregate>builder()
                         .code(500)
-                        .message("AdminAccount deleteFirstByAccountId failed.")
+                        .message("AdminAccount deleteOneByAccountId is failed.")
                         .build()
                 );
     }

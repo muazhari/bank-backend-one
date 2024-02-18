@@ -16,94 +16,94 @@ public class AccountTypeMapManagement {
     @Autowired
     private AccountTypeMapRepository accountTypeMapRepository;
 
-    public Mono<Result<AccountTypeMap>> findFirstByAccountId(UUID accountId) {
+    public Mono<Result<AccountTypeMap>> findOneByAccountId(UUID accountId) {
         return accountTypeMapRepository
-                .findFirstByAccountId(accountId)
+                .findOneByAccountId(accountId)
                 .map(accountTypeMap -> Result
                         .<AccountTypeMap>builder()
                         .data(accountTypeMap)
                         .code(200)
-                        .message("AccountTypeMap management findFirstByAccountId succeed.")
+                        .message("AccountTypeMap management findOneByAccountId is succeed.")
                         .build()
                 )
                 .switchIfEmpty(Mono
                         .just(Result
                                 .<AccountTypeMap>builder()
                                 .code(404)
-                                .message("AccountTypeMap management findFirstByAccountId failed, accountTypeMap not found.")
+                                .message("AccountTypeMap management findOneByAccountId is failed, accountTypeMap not found.")
                                 .build()
                         )
                 )
                 .onErrorReturn(Result
                         .<AccountTypeMap>builder()
                         .code(500)
-                        .message("AccountTypeMap management findFirstByAccountId failed.")
+                        .message("AccountTypeMap management findOneByAccountId is failed.")
                         .build()
                 );
     }
 
-    public Mono<Result<AccountTypeMap>> findFirstByAccountIdAndAccountTyped(UUID accountId, String accountTypeName) {
+    public Mono<Result<AccountTypeMap>> findOneByAccountIdAndAccountTyped(UUID accountId, String accountTypeName) {
         return accountTypeMapRepository
-                .findFirstByAccountIdAndAccountTypeName(accountId, accountTypeName)
+                .findOneByAccountIdAndAccountTypeName(accountId, accountTypeName)
                 .map(accountTypeMap -> Result
                         .<AccountTypeMap>builder()
                         .data(accountTypeMap)
                         .code(200)
-                        .message("AccountTypeMap management findFirstByAccountIdAndAccountTypeName succeed.")
+                        .message("AccountTypeMap management findOneByAccountIdAndAccountTypeName is succeed.")
                         .build()
                 )
                 .switchIfEmpty(Mono
                         .just(Result
                                 .<AccountTypeMap>builder()
                                 .code(404)
-                                .message("AccountTypeMap management findFirstByAccountIdAndAccountTypeName failed, accountTypeMap not found.")
+                                .message("AccountTypeMap management findOneByAccountIdAndAccountTypeName is failed, accountTypeMap not found.")
                                 .build()
                         )
                 )
                 .onErrorReturn(Result
                         .<AccountTypeMap>builder()
                         .code(500)
-                        .message("AccountTypeMap management findFirstByAccountIdAndAccountTypeName failed.")
+                        .message("AccountTypeMap management findOneByAccountIdAndAccountTypeName is failed.")
                         .build()
                 );
     }
 
-    public Mono<Result<AccountTypeMap>> saveFirst(AccountTypeMap saveAccountTypeMap) {
+    public Mono<Result<AccountTypeMap>> saveOne(AccountTypeMap toSaveAccountTypeMap) {
         return accountTypeMapRepository
-                .save(saveAccountTypeMap)
+                .save(toSaveAccountTypeMap)
                 .map(accountTypeMap -> Result
                         .<AccountTypeMap>builder()
                         .data(accountTypeMap)
                         .code(201)
-                        .message("AccountTypeMap management saveFirst succeed.")
+                        .message("AccountTypeMap management saveOne is succeed.")
                         .build()
                 )
                 .onErrorReturn(Result
                         .<AccountTypeMap>builder()
                         .code(500)
-                        .message("AccountTypeMap management saveFirst failed.")
+                        .message("AccountTypeMap management saveOne is failed.")
                         .build()
                 );
     }
 
-    public Mono<Result<AccountTypeMap>> patchFirstByAccountIdAndAccountTypeName(UUID accountId, String accountTypeName, AccountTypeMap patchAccountTypeMap) {
+    public Mono<Result<AccountTypeMap>> patchOneByAccountIdAndAccountTypeName(UUID accountId, String accountTypeName, AccountTypeMap toPatchAccountTypeMap) {
         return accountTypeMapRepository
-                .findFirstByAccountIdAndAccountTypeName(patchAccountTypeMap.getAccountId(), patchAccountTypeMap.getAccountTypeName())
+                .findOneByAccountIdAndAccountTypeName(toPatchAccountTypeMap.getAccountId(), accountTypeName)
                 .map(accountTypeMap -> Result
                         .<AccountTypeMap>builder()
                         .code(409)
                         .data(accountTypeMap)
-                        .message("AccountTypeMap management patchFirstByAccountIdAndAccountTypeName failed, accountTypeMap already exists by accountId and accountTypeName.")
+                        .message("AccountTypeMap management patchOneByAccountIdAndAccountTypeName is failed, accountTypeMap already exists by accountId and accountTypeName.")
                         .build()
                 )
                 .switchIfEmpty(
                         accountTypeMapRepository
-                                .findFirstByAccountIdAndAccountTypeName(accountId, accountTypeName)
+                                .findOneByAccountIdAndAccountTypeName(accountId, accountTypeName)
                                 .map(accountTypeMap -> {
-                                    accountTypeMap.setAccountId(patchAccountTypeMap.getAccountId());
-                                    accountTypeMap.setAccountTypeName(patchAccountTypeMap.getAccountTypeName());
-                                    accountTypeMap.setUpdatedAt(patchAccountTypeMap.getUpdatedAt());
-                                    accountTypeMap.setCreatedAt(patchAccountTypeMap.getCreatedAt());
+                                    accountTypeMap.setAccountId(toPatchAccountTypeMap.getAccountId());
+                                    accountTypeMap.setAccountTypeId(toPatchAccountTypeMap.getAccountTypeId());
+                                    accountTypeMap.setUpdatedAt(toPatchAccountTypeMap.getUpdatedAt());
+                                    accountTypeMap.setCreatedAt(toPatchAccountTypeMap.getCreatedAt());
                                     return accountTypeMap;
                                 })
                                 .flatMap(accountTypeMap -> accountTypeMapRepository.save(accountTypeMap))
@@ -111,27 +111,27 @@ public class AccountTypeMapManagement {
                                         .<AccountTypeMap>builder()
                                         .data(accountTypeMap)
                                         .code(200)
-                                        .message("AccountTypeMap management patchFirstByAccountIdAndAccountTypeName succeed.")
+                                        .message("AccountTypeMap management patchOneByAccountIdAndAccountTypeName is succeed.")
                                         .build()
                                 )
                 )
                 .onErrorReturn(Result
                         .<AccountTypeMap>builder()
                         .code(500)
-                        .message("AccountTypeMap management patchFirstByAccountIdAndAccountTypeName failed.")
+                        .message("AccountTypeMap management patchOneByAccountIdAndAccountTypeName is failed.")
                         .build()
                 );
     }
 
-    public Mono<Result<AccountTypeMap>> deleteFirstByAccountIdAndAccountTypeName(UUID accountId, String accountTypeName) {
+    public Mono<Result<AccountTypeMap>> deleteOneByAccountIdAndAccountTypeName(UUID accountId, String accountTypeName) {
         return accountTypeMapRepository
-                .findFirstByAccountIdAndAccountTypeName(accountId, accountTypeName)
+                .findOneByAccountIdAndAccountTypeName(accountId, accountTypeName)
                 .flatMap((accountTypeMap) -> accountTypeMapRepository.deleteById(accountTypeMap.getId()).thenReturn(accountTypeMap))
                 .map(accountTypeMap -> Result
                         .<AccountTypeMap>builder()
                         .data(accountTypeMap)
                         .code(200)
-                        .message("AccountTypeMap management deleteFirstByAccountIdAndAccountTypeName succeed.")
+                        .message("AccountTypeMap management deleteOneByAccountIdAndAccountTypeName is succeed.")
                         .build()
                 )
                 .switchIfEmpty(Mono
@@ -139,14 +139,14 @@ public class AccountTypeMapManagement {
                                 Result.
                                         <AccountTypeMap>builder()
                                         .code(404)
-                                        .message("AccountTypeMap management deleteFirstByAccountIdAndAccountTypeName failed, accountTypeMap not found.")
+                                        .message("AccountTypeMap management deleteOneByAccountIdAndAccountTypeName is failed, accountTypeMap not found.")
                                         .build()
                         )
                 )
                 .onErrorReturn(Result.
                         <AccountTypeMap>builder()
                         .code(500)
-                        .message("AccountTypeMap management deleteFirstByAccountIdAndAccountTypeName failed.")
+                        .message("AccountTypeMap management deleteOneByAccountIdAndAccountTypeName is failed.")
                         .build()
                 );
     }

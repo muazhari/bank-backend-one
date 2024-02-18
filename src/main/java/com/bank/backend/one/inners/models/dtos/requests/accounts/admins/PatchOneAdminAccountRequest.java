@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class PatchFirstAdminAccountRequest {
+public class PatchOneAdminAccountRequest {
     private String email;
     private String password;
 }

@@ -15,14 +15,14 @@ public class AccountTypeManagement {
     @Autowired
     private AccountTypeRepository accountTypeRepository;
 
-    public Mono<Result<AccountType>> findFirstByName(String name) {
+    public Mono<Result<AccountType>> findOneByName(String name) {
         return accountTypeRepository
-                .findFirstByName(name)
+                .findOneByName(name)
                 .map(accountType -> Result
                         .<AccountType>builder()
                         .data(accountType)
                         .code(200)
-                        .message("AccountType management findFirstByName succeed.")
+                        .message("AccountType management findOneByName is succeed.")
                         .build()
                 )
                 .switchIfEmpty(
@@ -30,7 +30,7 @@ public class AccountTypeManagement {
                                 .just(Result
                                         .<AccountType>builder()
                                         .code(404)
-                                        .message("AccountType management findFirstByName failed, accountType not found.")
+                                        .message("AccountType management findOneByName is failed, accountType not found.")
                                         .build()
                                 )
                 )
@@ -38,21 +38,21 @@ public class AccountTypeManagement {
                         Result
                                 .<AccountType>builder()
                                 .code(500)
-                                .message("AccountType management findFirstByName failed.")
+                                .message("AccountType management findOneByName is failed.")
                                 .build()
                 );
     }
 
-    public Mono<Result<AccountType>> saveFirst(AccountType saveAccountType) {
+    public Mono<Result<AccountType>> saveOne(AccountType saveAccountType) {
         return accountTypeRepository
-                .findFirstByName(saveAccountType.getName())
+                .findOneByName(saveAccountType.getName())
                 .flatMap(accountType -> Mono
                         .just(
                                 Result
                                         .<AccountType>builder()
                                         .code(409)
                                         .data(accountType)
-                                        .message("AccountType management saveFirst failed, accountType already exists by name.")
+                                        .message("AccountType management saveOne is failed, accountType already exists by name.")
                                         .build()
                         )
                 )
@@ -64,7 +64,7 @@ public class AccountTypeManagement {
                                             .<AccountType>builder()
                                             .data(accountType)
                                             .code(201)
-                                            .message("AccountType management saveFirst succeed.")
+                                            .message("AccountType management saveOne is succeed.")
                                             .build();
                                 })
                 )
@@ -72,24 +72,24 @@ public class AccountTypeManagement {
                         Result
                                 .<AccountType>builder()
                                 .code(500)
-                                .message("AccountType management saveFirst failed.")
+                                .message("AccountType management saveOne is failed.")
                                 .build()
                 );
     }
 
-    public Mono<Result<AccountType>> patchFirstByName(String name, AccountType patchAccountType) {
+    public Mono<Result<AccountType>> patchOneByName(String name, AccountType patchAccountType) {
         return accountTypeRepository
-                .findFirstByName(patchAccountType.getName())
+                .findOneByName(patchAccountType.getName())
                 .map(accountType -> Result
                         .<AccountType>builder()
                         .code(409)
                         .data(accountType)
-                        .message("AccountType management patchFirstByName failed, accountType already exists by name.")
+                        .message("AccountType management patchOneByName is failed, accountType already exists by name.")
                         .build()
                 )
                 .switchIfEmpty(
                         accountTypeRepository
-                                .findFirstByName(name)
+                                .findOneByName(name)
                                 .map(accountType -> {
                                     accountType.setName(patchAccountType.getName());
                                     accountType.setUpdatedAt(patchAccountType.getUpdatedAt());
@@ -101,7 +101,7 @@ public class AccountTypeManagement {
                                         .<AccountType>builder()
                                         .data(accountType)
                                         .code(200)
-                                        .message("AccountType management patchFirstByName succeed.")
+                                        .message("AccountType management patchOneByName is succeed.")
                                         .build()
                                 )
                 )
@@ -109,34 +109,34 @@ public class AccountTypeManagement {
                         Result
                                 .<AccountType>builder()
                                 .code(500)
-                                .message("AccountType management patchFirstByName failed.")
+                                .message("AccountType management patchOneByName is failed.")
                                 .build()
                 );
     }
 
-    public Mono<Result<AccountType>> deleteFirstByName(String name) {
+    public Mono<Result<AccountType>> deleteOneByName(String name) {
         return accountTypeRepository
-                .findFirstByName(name)
+                .findOneByName(name)
                 .flatMap((accountType) -> accountTypeRepository.deleteByName(accountType.getName()).thenReturn(accountType))
                 .map(accountType -> Result
                         .<AccountType>builder()
                         .data(accountType)
                         .code(200)
-                        .message("AccountType management deleteFirstByName succeed.")
+                        .message("AccountType management deleteOneByName is succeed.")
                         .build()
                 )
                 .switchIfEmpty(Mono
                         .just(Result
                                 .<AccountType>builder()
                                 .code(404)
-                                .message("AccountType management deleteFirstByName failed, accountType not found.")
+                                .message("AccountType management deleteOneByName is failed, accountType not found.")
                                 .build()
                         )
                 )
                 .onErrorReturn(Result
                         .<AccountType>builder()
                         .code(500)
-                        .message("AccountType management deleteFirstByName failed.")
+                        .message("AccountType management deleteOneByName is failed.")
                         .build()
                 );
     }

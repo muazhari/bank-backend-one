@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Data
 @Builder
-public class FindFirstAccountRequest {
+public class DeleteOneAccountRequest {
     private UUID accountId;
     private String typeName;
 }
