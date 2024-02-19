@@ -37,6 +37,25 @@ public class AccountTypeMapRepository {
                 .one();
     }
 
+    public Mono<AccountTypeMap> findOneByAccountIdAndAccountTypeId(UUID accountId, UUID accountTypeId) {
+        return postgresOneDatabaseClient
+                .sql("""
+                        SELECT * FROM account_type_map WHERE account_id = :accountId AND account_type_id = :accountTypeId LIMIT 1;
+                        """)
+                .bind("accountId", accountId)
+                .bind("accountTypeId", accountTypeId)
+                .map((row, rowMetadata) -> AccountTypeMap
+                        .builder()
+                        .id(row.get("id", UUID.class))
+                        .accountId(row.get("account_id", UUID.class))
+                        .accountTypeId(row.get("account_type_id", UUID.class))
+                        .createdAt(row.get("created_at", OffsetDateTime.class))
+                        .updatedAt(row.get("updated_at", OffsetDateTime.class))
+                        .build()
+                )
+                .one();
+    }
+
     public Mono<AccountTypeMap> findOneByAccountIdAndAccountTypeName(UUID accountId, String accountTypeName) {
         return postgresOneDatabaseClient
                 .sql("""

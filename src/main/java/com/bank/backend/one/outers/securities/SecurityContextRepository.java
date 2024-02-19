@@ -32,7 +32,6 @@ public class SecurityContextRepository implements ServerSecurityContextRepositor
                 .filter(authorizationHeader -> authorizationHeader != null && !authorizationHeader.isBlank() && !authorizationHeader.isEmpty())
                 .map(authorizationHeader -> authorizationHeaderTool.getTokenFromAuthorizationHeader("Bearer", authorizationHeader))
                 .flatMap(accessToken -> authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(accessToken, null, null)))
-                .map(authentication -> (SecurityContext) new SecurityContextImpl(authentication))
-                .switchIfEmpty(Mono.error(new RuntimeException("Access token is invalid.")));
+                .map(SecurityContextImpl::new);
     }
 }

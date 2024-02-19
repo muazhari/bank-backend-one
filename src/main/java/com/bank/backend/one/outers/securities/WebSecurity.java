@@ -34,6 +34,7 @@ public class WebSecurity {
                 .securityContextRepository(securityContextRepository)
                 .authorizeExchange(authorizeExchange -> authorizeExchange
                         .pathMatchers("/authentications/**").permitAll()
+                        .pathMatchers("/authorizations/**").permitAll()
                         .pathMatchers("/webjars/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
                         .pathMatchers("/actuator/**").permitAll()
                         .anyExchange().authenticated()

@@ -35,12 +35,13 @@ public class LoginAuthentication {
     private JwtTool jwtTool;
 
     public Mono<Result<LoginByEmailAndPasswordResponse>> loginByEmailAndPassword(LoginByEmailAndPasswordRequest request) {
-        return accountRepository
-                .findOneByEmail(request.getEmail())
+        return accountRepository.findOneByEmail(request.getEmail())
                 .flatMap(account -> {
                     if (passwordEncoder.matches(request.getPassword(), account.getPassword())) {
-                        return accountTypeMapRepository.findOneByAccountIdAndAccountTypeName(account.getId(), request.getTypeName())
-                                .flatMap(accountTypeMap -> accountTypeRepository.findOneById(accountTypeMap.getAccountTypeId())
+                        return accountTypeMapRepository
+                                .findOneByAccountIdAndAccountTypeName(account.getId(), request.getTypeName())
+                                .flatMap(accountTypeMap -> accountTypeRepository
+                                        .findOneById(accountTypeMap.getAccountTypeId())
                                         .flatMap(accountType -> jwtTool.
                                                 generateToken(
                                                         account,
@@ -55,7 +56,8 @@ public class LoginAuthentication {
                                                                 .expiredAt(OffsetDateTime.now().plusDays(1))
                                                                 .build()
                                                         )
-                                                        .flatMap(session -> sessionRepository.setSession(session)
+                                                        .flatMap(session -> sessionRepository
+                                                                .setSession(session)
                                                                 .filter(isSet -> isSet.equals(true))
                                                                 .map(isSet -> Result
                                                                         .<LoginByEmailAndPasswordResponse>builder()
@@ -70,10 +72,40 @@ public class LoginAuthentication {
                                                                         )
                                                                         .build()
                                                                 )
+                                                                .switchIfEmpty(Mono
+                                                                        .just(Result
+                                                                                .<LoginByEmailAndPasswordResponse>builder()
+                                                                                .code(500)
+                                                                                .message("LoginAuthentication loginByEmailAndPassword is failed, session is not set.")
+                                                                                .build()
+                                                                        )
+                                                                )
                                                         )
-
                                                 )
-
+                                                .switchIfEmpty(Mono
+                                                        .just(Result
+                                                                .<LoginByEmailAndPasswordResponse>builder()
+                                                                .code(500)
+                                                                .message("LoginAuthentication loginByEmailAndPassword is failed, accessToken is not generated.")
+                                                                .build()
+                                                        )
+                                                )
+                                        )
+                                        .switchIfEmpty(Mono
+                                                .just(Result
+                                                        .<LoginByEmailAndPasswordResponse>builder()
+                                                        .code(404)
+                                                        .message("LoginAuthentication LoginByEmailAndPasswordRequest is failed, accountType is not found by accountTypeId.")
+                                                        .build()
+                                                )
+                                        )
+                                )
+                                .switchIfEmpty(Mono
+                                        .just(Result
+                                                .<LoginByEmailAndPasswordResponse>builder()
+                                                .code(404)
+                                                .message("LoginAuthentication LoginByEmailAndPasswordRequest is failed, accountTypeMap is not found by accountId and accountTypeName.")
+                                                .build()
                                         )
                                 );
                     }
@@ -92,6 +124,12 @@ public class LoginAuthentication {
                                 .message("LoginAuthentication LoginByEmailAndPasswordRequest is failed, account is not found by email.")
                                 .build()
                         )
+                )
+                .onErrorReturn(Result
+                        .<LoginByEmailAndPasswordResponse>builder()
+                        .code(500)
+                        .message("LoginAuthentication LoginByEmailAndPasswordRequest is failed.")
+                        .build()
                 );
     }
 }

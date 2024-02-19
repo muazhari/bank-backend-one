@@ -46,8 +46,8 @@ public class RegisterAuthentication {
                 )
                 .switchIfEmpty(accountTypeRepository
                         .findOneByName(request.getTypeName())
-                        .flatMap(accountType -> accountRepository
-                                .save(Account
+                        .flatMap(accountType -> Mono
+                                .just(Account
                                         .builder()
                                         .id(UUID.randomUUID())
                                         .email(request.getEmail())
@@ -56,36 +56,57 @@ public class RegisterAuthentication {
                                         .updatedAt(OffsetDateTime.now())
                                         .build()
                                 )
-                                .flatMap(account -> accountTypeMapRepository
-                                        .save(
-                                                AccountTypeMap
+                                .flatMap(account -> accountRepository
+                                        .save(account)
+                                        .flatMap(savedAccount -> Mono
+                                                .just(AccountTypeMap
                                                         .builder()
                                                         .id(UUID.randomUUID())
-                                                        .accountId(account.getId())
+                                                        .accountId(savedAccount.getId())
                                                         .accountTypeId(accountType.getId())
                                                         .createdAt(OffsetDateTime.now())
                                                         .updatedAt(OffsetDateTime.now())
                                                         .build()
+                                                )
+                                                .flatMap(accountTypeMap -> accountTypeMapRepository
+                                                        .save(accountTypeMap)
+                                                        .map(savedAccountTypeMap -> Result
+                                                                .<RegisterByEmailAndPasswordResponse>builder()
+                                                                .code(201)
+                                                                .data(RegisterByEmailAndPasswordResponse
+                                                                        .builder()
+                                                                        .account(savedAccount)
+                                                                        .accountType(accountType)
+                                                                        .build()
+                                                                )
+                                                                .message("RegisterAuthentication registerByEmailAndPassword is successful.")
+                                                                .build()
+                                                        )
+                                                )
+                                                .switchIfEmpty(Mono
+                                                        .just(Result
+                                                                .<RegisterByEmailAndPasswordResponse>builder()
+                                                                .code(500)
+                                                                .message("RegisterAuthentication registerByEmailAndPassword is failed, accountTypeMap is not saved.")
+                                                                .build()
+                                                        )
+                                                )
                                         )
-                                        .map(accountTypeMap -> Result
-                                                .<RegisterByEmailAndPasswordResponse>builder()
-                                                .code(201)
-                                                .message("RegisterAuthentication registerByEmailAndPassword is succeed.")
-                                                .data(RegisterByEmailAndPasswordResponse
-                                                        .builder()
-                                                        .account(account)
-                                                        .accountType(accountType)
+                                        .switchIfEmpty(Mono
+                                                .just(Result
+                                                        .<RegisterByEmailAndPasswordResponse>builder()
+                                                        .code(500)
+                                                        .message("RegisterAuthentication registerByEmailAndPassword is failed, account is not saved.")
                                                         .build()
                                                 )
-                                                .build()
                                         )
                                 )
                         )
                         .switchIfEmpty(Mono
                                 .just(Result
                                         .<RegisterByEmailAndPasswordResponse>builder()
-                                        .code(404)
-                                        .message("RegisterAuthentication registerByEmailAndPassword is failed, accountTypeMap not found by accountId and accountTypeName.")
+                                        .code(500)
+                                        .message("RegisterAuthentication registerByEmailAndPassword is failed, accountType is not found by accountTypeName.")
                                         .build()
                                 )
                         )

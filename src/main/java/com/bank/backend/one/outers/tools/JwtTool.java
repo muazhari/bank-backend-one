@@ -48,4 +48,10 @@ public class JwtTool {
                 .map(verifier -> verifier.verify(token))
                 .onErrorResume(e -> Mono.error(new RuntimeException("Token verification is failed.", e)));
     }
+
+    public Mono<DecodedJWT> decodeToken(String token) {
+        return Mono
+                .just(JWT.decode(token))
+                .onErrorResume(e -> Mono.error(new RuntimeException("Token decoding is failed.", e)));
+    }
 }

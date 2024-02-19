@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class AuthenticationManager implements ReactiveAuthenticationManager {
@@ -27,20 +28,28 @@ public class AuthenticationManager implements ReactiveAuthenticationManager {
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
         return Mono
-                .just(authentication.getCredentials().toString())
-                .flatMap(accessToken -> sessionRepository.getSessionByAccessToken(accessToken)
-                        .flatMap(cachedSession -> jwtTool.verifyToken(cachedSession.getAccessToken())
-                                .filter(decodedJWT -> OffsetDateTime.now().isBefore(cachedSession.getExpiredAt()))
-                                .map(decodedJwt -> (Authentication) new UsernamePasswordAuthenticationToken(
-                                                cachedSession.getAccessToken(),
-                                                null,
-                                                List.of(new SimpleGrantedAuthority(decodedJwt.getClaim(jwtConfiguration.getToken().getClaim().getType()).asString()))
+                .just(authentication)
+                .map(Authentication::getPrincipal)
+                .flatMap(credentials -> {
+                    if (!Objects.isNull(credentials) && !credentials.toString().isBlank() && !credentials.toString().isEmpty()) {
+                        return Mono.just(credentials)
+                                .map(Object::toString)
+                                .flatMap(accessToken -> sessionRepository.getSessionByAccessToken(accessToken)
+                                        .flatMap(cachedSession -> jwtTool.verifyToken(cachedSession.getAccessToken())
+                                                .filter(decodedJWT -> OffsetDateTime.now().isBefore(cachedSession.getExpiredAt()))
+                                                .map(decodedJwt -> (Authentication) new UsernamePasswordAuthenticationToken(
+                                                                cachedSession.getAccessToken(),
+                                                                null,
+                                                                List.of(new SimpleGrantedAuthority(decodedJwt.getClaim(jwtConfiguration.getToken().getClaim().getType()).asString()))
+                                                        )
+                                                )
+                                                .switchIfEmpty(Mono.error(new RuntimeException("Session verification is failed.")))
                                         )
+                                        .switchIfEmpty(Mono.error(new RuntimeException("Access token verification is failed.")))
                                 )
-                                .switchIfEmpty(Mono.error(new RuntimeException("Session verification is failed.")))
-                        )
-                        .switchIfEmpty(Mono.error(new RuntimeException("Access token verification is failed.")))
-                )
-                .switchIfEmpty(Mono.error(new RuntimeException("Cached session is not found.")));
+                                .switchIfEmpty(Mono.error(new RuntimeException("Cached session is not found.")));
+                    }
+                    return Mono.error(new RuntimeException("Access token is invalid."));
+                });
     }
 }

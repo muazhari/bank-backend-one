@@ -10,18 +10,19 @@ import com.bank.backend.one.inners.models.dtos.requests.accounts.SaveOneAccountR
 import com.bank.backend.one.inners.models.dtos.requests.accounts.users.PatchOneUserAccountRequest;
 import com.bank.backend.one.inners.models.dtos.requests.accounts.users.SaveOneUserAccountRequest;
 import com.bank.backend.one.inners.usecases.accounts.AggregateAccount;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
-@Controller
+@RestController
 @RequestMapping(
         value = "/accounts/users"
 )
+@SecurityRequirement(name = "bearerAuth")
 public class UserAccountRest {
 
     @Autowired
